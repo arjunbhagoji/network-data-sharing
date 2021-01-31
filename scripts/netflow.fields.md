@@ -1,48 +1,48 @@
-Tag	Description
-%ts	Start Time - first seen
-%te 	End Time - last seen
-%td	Duration
-%sa 	Source Address
-%da 	Destination Address
-%sp	Source Port
-%dp	Destination Port
-%pr	Protocol
-%flg	TCP Flags
-%fwd	Forwarding Status
-stos	Source Type of Service
-%ipkt 	Input Packets
-%ibyt	Input Bytes
-%opkt 	Output Packets
-%obyt	Output Bytes
-%in 	Input Interface num
-%out 	Output Interface num
-%sas 	Source AS
-%das	Destination AS
-%smk 	Src mask
-%dmk 	Dst mask
-%dtos 	Dst Tos
-%dir 	Direction: ingress, egress
-%nh 	Next-hop IP Address
-%nhb 	BGP Next-hop IP Address
-%svln 	Src vlan label
-%dvln 	Dst vlan label
-%ismc 	Input Src Mac Addr
-%odmc 	Output Dst Mac Addr
-%idmc 	Input Dst Mac Addr
-%osmc 	Output Src Mac Addr
-%mpls1 	MPLS label 1
-%mpls2 	MPLS label 2
-%mpls3	 MPLS label 3
-%mpls4 	MPLS label 4
-%mpls5 	MPLS label 5
-%mpls6	 MPLS label 6
-%mpls7 	MPLS label 7
-%mpls8	 MPLS label 8
-%mpls9 	MPLS label 9
-%mpls10 	MPLS label 10
-%cl 	Client latency
-%sl 	Server latency
-%al 	Application latency
-%eng 	Engine Type/ID
-%exid	??
-%tr 	Time the flow was received by the collector
+**Tag**	**Description**
+- %ts	Start Time - first seen
+- %te 	End Time - last seen
+- %td	Duration
+- %sa 	Source Address
+- %da 	Destination Address
+- %sp	Source Port
+- %dp	Destination Port
+- %pr	Protocol
+- %flg	TCP Flags
+- %fwd	Forwarding Status
+- stos	Source Type of Service
+- %ipkt 	Input Packets
+- %ibyt	Input Bytes
+- %opkt 	Output Packets
+- %obyt	Output Bytes
+- %in 	Input Interface num
+- %out 	Output Interface num
+- %sas 	Source AS
+- %das	Destination AS
+- %smk 	Src mask
+- %dmk 	Dst mask
+- %dtos 	Dst Tos
+- %dir 	Direction: ingress, egress
+- %nh 	Next-hop IP Address
+- %nhb 	BGP Next-hop IP Address
+- %svln 	Src vlan label
+- %dvln 	Dst vlan label
+- %ismc 	Input Src Mac Addr
+- %odmc 	Output Dst Mac Addr
+- %idmc 	Input Dst Mac Addr
+- %osmc 	Output Src Mac Addr
+- %mpls1 	MPLS label 1
+- %mpls2 	MPLS label 2
+- %mpls3	 MPLS label 3
+- %mpls4 	MPLS label 4
+- %mpls5 	MPLS label 5
+- %mpls6	 MPLS label 6
+- %mpls7 	MPLS label 7
+- %mpls8	 MPLS label 8
+- %mpls9 	MPLS label 9
+- %mpls10 	MPLS label 10
+- %cl 	Client latency
+- %sl 	Server latency
+- %al 	Application latency
+- %eng 	Engine Type/ID
+- %exid	??
+- %tr 	Time the flow was received by the collector
