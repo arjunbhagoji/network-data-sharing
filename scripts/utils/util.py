@@ -62,6 +62,61 @@ def remap_ip_dataframe(df, ips_to_remap_list, num_ip, ip_gen_mode='normal_dist',
     df["da_remapped"] = df.apply(lambda x: remap_ip(x, 'da'), axis=1)
     return df
 
+
+def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
+    list_of_dfs=[]
+    if maintain_ratio:
+        benign_df=df[df['Label']==0.0]
+        mal_df=df[df['Label']==1.0]
+        benign_bs=int(np.ceil(len(benign_df)/num_agents))
+        mal_bs=int(np.ceil(len(mal_df)/num_agents))
+        print(benign_bs,mal_bs)
+        if seq_select:
+            for i in range(num_agents):
+                benign_df_curr=benign_df[i*benign_bs:(i+1)*benign_bs]
+                mal_df_curr=mal_df[i*mal_bs:(i+1)*mal_bs]
+                df_curr=pd.concat([benign_df_curr,mal_df_curr])
+                list_of_dfs.append(df_curr)
+        else:
+            benign_set=np.array(benign_df.index)
+            mal_set=np.array(mal_df.index)
+            for i in range(num_agents):
+                print(benign_set,mal_set)
+                if len(benign_set)>benign_bs:
+                    ben_indices_curr=np.sort(rng.choice(benign_set,benign_bs,replace=False))
+                    print(ben_indices_curr)
+                    benign_set=np.setdiff1d(benign_set,ben_indices_curr)
+                else:
+                    ben_indices_curr=benign_set
+                benign_df_curr=benign_df.loc[ben_indices_curr]
+                if len(mal_set)>mal_bs:
+                    mal_indices_curr=np.sort(rng.choice(mal_set,mal_bs,replace=False))
+                    mal_set=np.setdiff1d(mal_set,mal_indices_curr)
+                else:
+                    mal_indices=mal_set
+                mal_df_curr=mal_df.loc[mal_indices_curr]
+                df_curr=pd.concat([benign_df_curr,mal_df_curr])
+                list_of_dfs.append(df_curr)
+    else:
+        bs=int(np.ceil(len(df)/num_agents))
+        if seq_select:
+            for i in range(num_agents):
+                df_curr=df[i*bs:(i+1)*bs]
+                list_of_dfs.append(df_curr)
+        else:
+            all_set=np.array(df.index)
+            for i in range(num_agents):
+                if len(all_set)>bs:
+                    indices_curr=np.sort(rng.choice(all_set,bs,replace=False))
+                    all_set=np.setdiff1d(all_set,indices_curr)
+                else:
+                    indices_curr=all_set
+                df_curr=df.loc[indices_curr]
+                list_of_dfs.append(df_curr)
+    
+    return list_of_dfs
+
+
 if __name__ == "__main__":
     input_dir = "../../data/benign_attack/nfcapd.*.csv"
     input_data_file_list = glob.glob(input_dir)
