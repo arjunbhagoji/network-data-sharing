@@ -1,7 +1,3 @@
 # network-data-sharing
 
-## Netflow data from PCAP
-- Installation instruction for nfdump: https://gist.github.com/jjsantanna/f2ee2f1fe23208299f4a2ca392f8b23f. Follow it until step 6. 
-- Once installed, run the pcap_to_netflow.sh script as follows
-  `sudo pcap_to_netflow.sh input_pcap output_dir`
-
+To remap the ips and split, run ```replace_and_split.py```. It currently works the provided sample ```annotate_small.csv``` which can be changed using the flag ```--input_csv```. The ips are remapped at random but can use a predetermined set by using the flag ```--replace_ip_list``` which expects a csv file with a column headed as 'ip'.
