@@ -2,3 +2,4 @@ data/
 tmp/
 .DS_Store
 notebooks/.ipynb_checkpoints/
+sample_data/iot_data/.ipynb_checkpoints/
