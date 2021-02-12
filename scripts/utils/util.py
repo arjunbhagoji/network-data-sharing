@@ -65,9 +65,10 @@ def remap_ip_dataframe(df, ips_to_remap_list, num_ip, ip_gen_mode='normal_dist',
 
 def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
     list_of_dfs=[]
+    assert len(df)>=num_agents
     if maintain_ratio:
-        benign_df=df[df['Label']==0.0]
-        mal_df=df[df['Label']==1.0]
+        benign_df=df[df['flow_type']==0.0]
+        mal_df=df[df['flow_type']==1.0]
         benign_bs=int(np.ceil(len(benign_df)/num_agents))
         mal_bs=int(np.ceil(len(mal_df)/num_agents))
         print(benign_bs,mal_bs)
@@ -118,6 +119,10 @@ def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
 
 
 if __name__ == "__main__":
+    # args
+    # distribution
+    # num_agents, maintain_ratio, seq_select
+
     input_dir = "../../data/benign_attack/nfcapd.*.csv"
     input_data_file_list = glob.glob(input_dir)
     li = []
@@ -134,3 +139,11 @@ if __name__ == "__main__":
     df = remap_ip_dataframe(df, ips_to_remap_list, 10000)
     print(df.head(10)[["sa", "da", "sa_remapped", "da_remapped"]])
 
+    # parameters
+    num_agents=10
+    maintain_ratio=True
+    seq_select=False
+
+    distributed_df_list=distribute_dataframe(df,num_agents,maintain_ratio,seq_select)
+    for (i,split_df) in distributed_df_list:
+        split_df.to_csv("DIR_NAME/FLOW_NAME_%s" % i)
