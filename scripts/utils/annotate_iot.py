@@ -42,5 +42,5 @@ def getFlowType(x):
     else:
         return 1
 dfTemp["flow_type"] = dfTemp["flow_tag"].apply(getFlowType)
-
-print(dfTemp.head(100))
+outfile = "../../data/annotated_data.csv"
+dfTemp.to_csv(outfile)

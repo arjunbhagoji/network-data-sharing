@@ -1,6 +1,6 @@
 import pandas as pd
 import glob, ipaddress
-import numpy as np
+import numpy as np, os
 pd.set_option('display.max_colwidth', None)
 
 
@@ -64,6 +64,7 @@ def remap_ip_dataframe(df, ips_to_remap_list, num_ip, ip_gen_mode='normal_dist',
 
 
 def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
+    rng = np.random.default_rng()
     list_of_dfs=[]
     assert len(df)>=num_agents
     if maintain_ratio:
@@ -71,7 +72,7 @@ def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
         mal_df=df[df['flow_type']==1.0]
         benign_bs=int(np.ceil(len(benign_df)/num_agents))
         mal_bs=int(np.ceil(len(mal_df)/num_agents))
-        print(benign_bs,mal_bs)
+        #print(benign_bs,mal_bs)
         if seq_select:
             for i in range(num_agents):
                 benign_df_curr=benign_df[i*benign_bs:(i+1)*benign_bs]
@@ -82,10 +83,10 @@ def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
             benign_set=np.array(benign_df.index)
             mal_set=np.array(mal_df.index)
             for i in range(num_agents):
-                print(benign_set,mal_set)
+                #print(benign_set,mal_set)
                 if len(benign_set)>benign_bs:
                     ben_indices_curr=np.sort(rng.choice(benign_set,benign_bs,replace=False))
-                    print(ben_indices_curr)
+                    #print(ben_indices_curr)
                     benign_set=np.setdiff1d(benign_set,ben_indices_curr)
                 else:
                     ben_indices_curr=benign_set
@@ -123,7 +124,9 @@ if __name__ == "__main__":
     # distribution
     # num_agents, maintain_ratio, seq_select
 
-    input_dir = "../../data/benign_attack/nfcapd.*.csv"
+    #input_dir = "../../data/benign_attack/nfcapd.*.csv"
+    input_dir = "annotate_data_small.csv"
+    
     input_data_file_list = glob.glob(input_dir)
     li = []
     print("reading dataframe")
@@ -143,7 +146,11 @@ if __name__ == "__main__":
     num_agents=10
     maintain_ratio=True
     seq_select=False
-
+    
+    out_dir = "out_data/"
+    if not os.path.exists(out_dir):
+        os.mkdirs(out_dir)
     distributed_df_list=distribute_dataframe(df,num_agents,maintain_ratio,seq_select)
-    for (i,split_df) in distributed_df_list:
-        split_df.to_csv("DIR_NAME/FLOW_NAME_%s" % i)
+    for (i,split_df) in enumerate(distributed_df_list):
+        outfile = out_dir + "split_%d.csv" % i
+        split_df.to_csv(outfile)
