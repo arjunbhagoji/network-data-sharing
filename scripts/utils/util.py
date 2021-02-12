@@ -3,6 +3,8 @@ import glob, ipaddress
 import numpy as np, os
 pd.set_option('display.max_colwidth', None)
 
+import argparse
+
 
 ## assumes normally distributed IPs. Input: Standard deviation of the IP distance, # of IP addresses
 def generate_ips_from_normal(num_ip, std_dev=10000):
@@ -14,12 +16,13 @@ def generate_ips_from_normal(num_ip, std_dev=10000):
 
 
 
-def generate_ips(num_ip, mode = "normal_dist", filename = None, std_dev=1000):
-    if mode == "file":
-        df = pd.read_csv(filename, header=0)
+def generate_ips(args, std_dev=1000):
+    if args.remap_mode == "file":
+        df = pd.read_csv(args.replace_ip_list, header=0)
         ip_list = list(df["ip"])
-    elif mode == "normal_dist":
+    elif args.remap_mode == "normal_dist":
         mean_ip = 2155905152
+        num_ip = 10000
         ip_list = np.random.normal(mean_ip, std_dev, num_ip)
         ip_list = [ipaddress.ip_address(int(x)).__str__() for x in ip_list]
     return ip_list
@@ -31,7 +34,7 @@ def generate_ips(num_ip, mode = "normal_dist", filename = None, std_dev=1000):
 ## output: df with two new columns. sa_remapped and da_remapped 
 
 
-def remap_ip_dataframe(df, ips_to_remap_list, num_ip, ip_gen_mode='normal_dist', ip_std_dev=100000, iplist_filename=None):
+def remap_ip_dataframe(df, ips_to_remap_list, args, ip_std_dev=100000):
     def remap_ip(x, field_name):
         (src_ip, src_port, dst_ip, dst_port) = (x["sa"], x["sp"], x["da"], x["dp"])
         
@@ -51,7 +54,7 @@ def remap_ip_dataframe(df, ips_to_remap_list, num_ip, ip_gen_mode='normal_dist',
         return ip_to_map
 
 
-    ip_list = generate_ips(num_ip, mode=ip_gen_mode, filename=iplist_filename, std_dev=ip_std_dev)
+    ip_list = generate_ips(args, std_dev=ip_std_dev)
     len_ip_list = len(ip_list)
     ips_to_remap_dict = dict.fromkeys(ips_to_remap_list, 1)
 
@@ -120,37 +123,47 @@ def distribute_dataframe(df,num_agents,maintain_ratio,seq_select):
 
 
 if __name__ == "__main__":
-    # args
-    # distribution
-    # num_agents, maintain_ratio, seq_select
+
+    parser = argparse.ArgumentParser()
+    #IO args
+    parser.add_argument('--input_csv', type=str, default="../../annotate_data_small.csv")
+    parser.add_argument('--ben_flow_label', type=int,default=0)
+    parser.add_argument('--mal_flow_label', type=int,default=1)
+    parser.add_argument('--output_dir', type=str, default='out_data')
+
+    # Remapping args
+    parser.add_argument('--remap_mode', type=str, default='normal_dist')
+    parser.add_argument('--replace_ip_list', type=str, default=None)
+
+    # Splitting args
+    parser.add_argument('--num_agents', type=int,default=10)
+    parser.add_argument('--maintain_ratio', dest='maintain_ratio', action='store_true')
+    parser.add_argument('--seq_select', dest='seq_select', action='store_true')
+
+    args = parser.parse_args()
 
     #input_dir = "../../data/benign_attack/nfcapd.*.csv"
-    input_dir = "annotate_data_small.csv"
+    # input_dir = "annotate_data_small.csv"
     
-    input_data_file_list = glob.glob(input_dir)
-    li = []
-    print("reading dataframe")
-    for filename in input_data_file_list:
-            df = pd.read_csv(filename, index_col=None, header=0)
-            li.append(df)
-    df = pd.concat(li, axis=0, ignore_index=True)
+    # input_data_file_list = glob.glob(input_dir)
+    # li = []
+    # print("reading dataframe")
+    # for filename in input_data_file_list:
+    #         df = pd.read_csv(filename, index_col=None, header=0)
+    #         li.append(df)
+    # df = pd.concat(li, axis=0, ignore_index=True)
+    df = pd.read_csv(args.input_csv, index_col=None, header=0)
     # filter out the last few lines that are aggregate stats and not flow records
     df = df[~pd.isna(df["pr"])]
     print("remapping ip addresses")
     ips_to_remap_list = ["192.168.1.1", "192.168.1.2"]
     print(df.head(10))
-    df = remap_ip_dataframe(df, ips_to_remap_list, 10000)
+    df = remap_ip_dataframe(df, ips_to_remap_list, args)
     print(df.head(10)[["sa", "da", "sa_remapped", "da_remapped"]])
-
-    # parameters
-    num_agents=10
-    maintain_ratio=True
-    seq_select=False
     
-    out_dir = "out_data/"
-    if not os.path.exists(out_dir):
-        os.mkdirs(out_dir)
-    distributed_df_list=distribute_dataframe(df,num_agents,maintain_ratio,seq_select)
+    if not os.path.exists(args.output_dir):
+        os.mkdir(args.output_dir)
+    distributed_df_list=distribute_dataframe(df,args.num_agents,args.maintain_ratio,args.seq_select)
     for (i,split_df) in enumerate(distributed_df_list):
-        outfile = out_dir + "split_%d.csv" % i
+        outfile = args.output_dir + '/' + "split_%d.csv" % i
         split_df.to_csv(outfile)
