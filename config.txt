@@ -1,0 +1,21 @@
+[DEFAULT]
+learning=supervised
+input=
+train_labels=
+test_label=
+header_present=
+train_test_split=
+
+
+[FEDERATION]
+num_split=
+split_type=
+
+## for argparse
+[SUPERVISED]
+model=
+model_params=
+
+
+[UNSUPERVISED]
+model=
