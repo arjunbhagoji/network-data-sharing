@@ -23,16 +23,16 @@ def count_correct(y,y_hat):
     print(count_correct/len(X_test))
     return count_correct/len(X_test)
 
-def classify_get_performance(df_list, X_test, y_test, classifier):
+def classify_get_performance(df_list, X_test, y_test, classifier,seed=None):
     performance_numbers=[]
     for item in df_list:
         X=item[0]
         y=item[1]
         if classifier == 'RF':
-            clf = RandomForestClassifier(max_depth=3, random_state=0)
+            clf = RandomForestClassifier(max_depth=3, random_state=seed)
         elif classifier == 'SVM':
 #             clf = LinearSVC(C=1.0,max_iter=10000)
-            clf = SGDClassifier(loss='hinge', penalty='l2',random_state=7,max_iter=10000)
+            clf = SGDClassifier(loss='hinge', penalty='l2',max_iter=10000,shuffle=True,random_state=seed)
         elif classifier == 'NB':
             clf = GaussianNB()
         clf.fit(X, y)
@@ -41,6 +41,9 @@ def classify_get_performance(df_list, X_test, y_test, classifier):
     return performance_numbers
 
 if __name__ == "__main__":
+
+    seed = 777
+    rng = np.random.default_rng(seed)  # can be called without a seed
     
     config = configparser.ConfigParser()
     config.read_file(open('configs/default.cfg'))
@@ -65,7 +68,7 @@ if __name__ == "__main__":
     if config['DATA']['input_type']=='CIC-IDS-2017':
         input_file=config['DATA']['input_dir']+'/'+config['DATA']['input_type']+'/'+args.day_name+'-'+args.attack_type+'.csv'
     
-    X_train, y_train, X_test, y_test = read_data(config['DATA']['input_type'], input_file, float(config['DATA']['train_test_split']),attack_type=args.attack_type)
+    X_train, y_train, X_test, y_test = read_data(config['DATA']['input_type'], input_file, float(config['DATA']['train_test_split']),rng,attack_type=args.attack_type)
 
     if config['REMAP']['remap_mode']!='None':
         print("remapping ip addresses")
@@ -75,17 +78,22 @@ if __name__ == "__main__":
 #         print(df.head(10)[["sa", "da", "sa_remapped", "da_remapped"]])
     
     if args.num_agents>1:
-        df_list=distribute_dataframe_np(X_train, y_train ,args.num_agents,args.maintain_ratio,args.seq_select)
+        df_list=distribute_dataframe_np(X_train, y_train, args.num_agents, args.maintain_ratio, args.seq_select, rng)
     else:
         df_list=[(X_train,y_train)]
         
-    test_accs=classify_get_performance(df_list, X_test, y_test,args.classifier)
+    test_accs=classify_get_performance(df_list, X_test, y_test,args.classifier,seed)
     
     if config['DATA']['input_type']=='CIC-IDS-2017':
         output_dir_name=config['DATA']['output_dir']+'/'+config['DATA']['input_type']+'/'+args.day_name+'-'+args.attack_type
     if not os.path.exists(output_dir_name):
 	    os.makedirs(output_dir_name)
-    out_file_name=output_dir_name+'/'+args.classifier+'.txt'
+    out_file_name=args.classifier
+    if args.maintain_ratio:
+        out_file_name+='_mr'
+    if args.seq_select:
+        out_file_name+='_seq'
+    out_file_name=output_dir_name+'/'+out_file_name+'.txt'
     f = open(out_file_name, mode='a')
     f.write('{}, {}, {} \n'.format(args.num_agents,np.mean(test_accs),np.sqrt(np.var(test_accs))))
     f.close()

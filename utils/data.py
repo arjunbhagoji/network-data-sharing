@@ -10,12 +10,12 @@ def data_cleanup(X,y):
     y_mod=y[mask]
     return X_mod,y_mod
 
-def read_data(input_type,input_file,train_split,attack_type=None):
+def read_data(input_type,input_file,train_split,rng,attack_type=None):
     
     if input_type == 'CIC-IDS-2017':
         df=pd.read_csv(input_file,delimiter=',')
         df_np=df.to_numpy()
-        df_np_perm=df_np[np.random.permutation(len(df_np))]
+        df_np_perm=df_np[rng.permutation(len(df_np))]
         # Removing port from features
         X=df_np_perm[:,1:-2]
         y=df_np_perm[:,-1]

@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,label_name='flow_type'):
-    rng = np.random.default_rng()
+def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,rng,label_name='flow_type'):
     list_of_dfs=[]
     assert len(X)>=num_agents
     if maintain_ratio:
