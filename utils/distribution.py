@@ -7,10 +7,12 @@ def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,label_name=
     list_of_dfs=[]
     assert len(X)>=num_agents
     if maintain_ratio:
-        benign_df=X[np.where(y==0.0)]
-        mal_df=X[np.where(y==1.0)]
-        benign_df_labels=y[np.where(y=0.0)]
-        mal_df_labels=y[np.where(y=1.0)]
+        benign_indices=np.where(y==0.0)
+        mal_indices=np.where(y==1.0)
+        benign_df=X[benign_indices]
+        mal_df=X[mal_indices]
+        benign_df_labels=y[benign_indices]
+        mal_df_labels=y[mal_indices]
         benign_bs=int(np.ceil(len(benign_df)/num_agents))
         mal_bs=int(np.ceil(len(mal_df)/num_agents))
         #print(benign_bs,mal_bs)
@@ -24,8 +26,8 @@ def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,label_name=
                 y_curr=np.vstack([benign_df_labels_curr,mal_df_labels_curr])
                 list_of_dfs.append((X_curr,y_curr))
         else:
-            benign_set=np.array(benign_df.index)
-            mal_set=np.array(mal_df.index)
+            benign_set=np.arange(len(benign_df))
+            mal_set=np.arange(len(mal_df))
             for i in range(num_agents):
                 #print(benign_set,mal_set)
                 if len(benign_set)>benign_bs:
@@ -44,7 +46,7 @@ def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,label_name=
                 mal_df_curr=mal_df[mal_indices_curr]
                 mal_df_labels_curr=mal_df_labels[mal_indices_curr]
                 X_curr=np.vstack([benign_df_curr,mal_df_curr])
-                y_curr=np.vstack([benign_df_labels_curr,mal_df_labels_curr])
+                y_curr=np.hstack([benign_df_labels_curr,mal_df_labels_curr])
                 list_of_dfs.append((X_curr,y_curr))
     else:
         bs=int(np.ceil(len(X)/num_agents))

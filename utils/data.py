@@ -10,19 +10,18 @@ def data_cleanup(X,y):
     y_mod=y[mask]
     return X_mod,y_mod
 
-def read_data(input_type,input_file,train_split):
-    # To-do: return column list
+def read_data(input_type,input_file,train_split,attack_type=None):
     
-    if input_type == 'cic_ids':
-        Friday_san=pd.read_csv(input_file,delimiter=',')
-        Friday_san_np=Friday_san.to_numpy()
-        Friday_san_np_perm=Friday_san_np[np.random.permutation(len(Friday_san_np))]
+    if input_type == 'CIC-IDS-2017':
+        df=pd.read_csv(input_file,delimiter=',')
+        df_np=df.to_numpy()
+        df_np_perm=df_np[np.random.permutation(len(df_np))]
         # Removing port from features
-        X=Friday_san_np_perm[:,1:-2]
-        y=Friday_san_np_perm[:,-1]
+        X=df_np_perm[:,1:-2]
+        y=df_np_perm[:,-1]
 
         y_mod=np.zeros(len(y))
-        y_mod[np.where(y=='DDoS')]=1
+        y_mod[np.where(y==attack_type)]=1
     elif input_type == 'iot':
         # To-do
         #input_dir = "../../data/benign_attack/nfcapd.*.csv"
@@ -47,6 +46,9 @@ def read_data(input_type,input_file,train_split):
 
     y_train=y_clean[:train_len]
     y_test=y_clean[train_len:]
+    
+    print(len(np.where(y_test==1.0)[0]))
+    print(len(y_test))
     
     return X_train, y_train, X_test, y_test
     
