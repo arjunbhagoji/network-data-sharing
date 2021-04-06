@@ -11,8 +11,10 @@ pcap_file=$1
 #creates a tmp directory wherein the intermediate output is stored
 mkdir tmp
 
+timeout=600
+
 #reads pcap and converts it into netflow format which is the read by the nfdump tool
-sudo nfpcapd -r $1 -l tmp/ -T all
+sudo nfpcapd -r $1 -l tmp/ -e $timeout,60 -T all -t $timeout
 
 # output directory wherein the data should be stored
 outdir=$2
