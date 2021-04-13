@@ -6,3 +6,4 @@ sample_data/iot_data/.ipynb_checkpoints/
 *.pcap
 .ipynb_checkpoints/
 scripts/.ipynb_checkpoints/
+outputs/

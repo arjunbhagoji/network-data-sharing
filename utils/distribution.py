@@ -7,7 +7,7 @@ def distribute_dataframe_np(X,y,num_agents,maintain_ratio,seq_select,rng,label_n
     assert len(X)>=num_agents
     if maintain_ratio:
         benign_indices=np.where(y==0.0)
-        mal_indices=np.where(y==1.0)
+        mal_indices=np.where(y!=0.0)
         benign_df=X[benign_indices]
         mal_df=X[mal_indices]
         benign_df_labels=y[benign_indices]
@@ -78,7 +78,7 @@ def distribute_dataframe(df,num_agents,maintain_ratio,seq_select,label_name='flo
     assert len(df)>=num_agents
     if maintain_ratio:
         benign_df=df[df[label_name]==0.0]
-        mal_df=df[df[label_name]==1.0]
+        mal_df=df[df[label_name]!=0.0]
         benign_bs=int(np.ceil(len(benign_df)/num_agents))
         mal_bs=int(np.ceil(len(mal_df)/num_agents))
         #print(benign_bs,mal_bs)
